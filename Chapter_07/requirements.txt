@@ -1,0 +1,7 @@
+Flask==0.10.1
+Jinja2==2.7.2
+WebTest==2.0.14
+lettuce==0.2.19
+robotframework==2.8.4
+nose==1.3.3
+requests=2.3.0

@@ -1,0 +1,17 @@
+**********************************
+*         Python Testing         *
+*          David Sale            *
+*          Chapter 4             *
+**********************************
+
+Contained in this project is the state of the code at the end of Chapter 4.
+
+Feel free to change and modify this as you like. You should try to run the
+code as explained in the book, and also try modifying values and the code to
+understand more about how it is used.
+
+Please use:
+
+$ pip install -r requirements.txt
+
+to install any of the dependencies used in the Chapter.

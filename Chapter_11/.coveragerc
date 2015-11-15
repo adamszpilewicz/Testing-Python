@@ -1,0 +1,4 @@
+# Settings file to control the nose test coverage output
+
+[run]
+omit = bank/test/*, bank/

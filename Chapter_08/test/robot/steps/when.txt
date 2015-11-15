@@ -1,0 +1,67 @@
+*** Settings ***
+Documentation     Step definitions
+
+*** Variables ***
+${HOME URL}       ''
+
+*** Keywords ***
+I ${method} to the ${type} page with ${data}, I should get status code ${status_code}
+    ${resp}=    doing    ${method}    ${type}    ${data}
+    I should get status code    ${status_code}
+
+I GET ${type}, I should get status code ${status_code}
+    ${resp}=    getting    ${type}
+    I should get status code    ${status_code}
+
+I GET ${type} with header ${request_header_key} ${request_header_value}, I should get response with header ${response_header_key} ${response_header_value} and status code ${status_code}
+    ${resp}=    getting2    ${type}    [('${request_header_key}','${request_header_value}')]
+    I should get status code    ${status_code}
+    ${response_headers}=    Create Dictionary    ${response_header_key}    ${response_header_value}
+    Should Be Equal As Strings    ${resp.headers['${response_header_key}']}    ${response_headers['${response_header_key}']}
+
+I GET ${type} with header ${request_header_key} ${request_header_value}, I should get a response with links: ${expected_rels}
+    ${resp}=    getting2    ${type}    [('${request_header_key}','${request_header_value}')]
+    I should get status code    200
+    ${respJSON}=    decode    ${resp.data}
+    ${link_rels}=    Create List
+    @{links}=    Get From Dictionary    ${respJSON}    links
+    : FOR    ${link}    IN    @{links}
+    \    ${link_rel}=    Get From Dictionary    ${link}    rel
+    \    ${link_href}=    Get From Dictionary    ${link}    href
+    \    Append To List    ${link_rels}    ${link_rel}
+    Sort List    ${link_rels}
+    Sort List    ${expected_rels}
+    Lists Should Be Equal    ${link_rels}    ${expected_rels}
+
+I check all hypermedia links with header ${request_header_key} ${request_header_value}, I should get a response with links: ${expected_rels}
+    ${resp}=    getting2    entity    [('${request_header_key}','${request_header_value}')]
+    ${respJSON}=    decode    ${resp.data}
+    ${link_rels}=    Create List
+    @{links}=    Get From Dictionary    ${respJSON}    links
+    : FOR    ${link}    IN    @{links}
+    \    ${link_rel}=    Get From Dictionary    ${link}    rel
+    \    ${link_href}=    Get From Dictionary    ${link}    href
+    \    ${media_type}=    Get From Dictionary    ${link}    mediaType
+    \    Should be Equal As Strings    ${media_type}    application/schema+json
+    \    Append To List    ${link_rels}    ${link_rel}
+    Sort List    ${link_rels}
+    Sort List    ${expected_rels}
+    Lists Should Be Equal    ${link_rels}    ${expected_rels}
+
+I access the ${uri} page
+    I GET ${uri}, I should get status code 200
+
+I GET ${type} with query params ${params}
+    ${resp}=    Getting    ${type}?${params}
+    Set Test Variable    ${last_response}    ${resp}
+
+the last response had a status code of ${code}
+    I should get status code    ${code}
+
+I have activated stubbed scenario "${scenario_name}"
+    ${resp}=    Posting    ${SEMANTIC_INTEGRATION_SCENARIOS}/${scenario_name}    {}    {'Accept', 'text/html'}
+    Comment    I should get status code    200
+
+The last response should contain ${response}
+    ${last}=    decode    ${last_response.data}
+    Should Be Equal    ${last}    ${response}
